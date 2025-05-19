@@ -1,4 +1,3 @@
-
 export default class GenericRepository {
     constructor(dao) {
         this.dao = dao;
@@ -22,5 +21,10 @@ export default class GenericRepository {
 
     delete = (id) =>{
         return this.dao.delete(id);
+    }
+
+    // Added get method for general use
+    get = (params) => {
+        return this.dao.get(params);
     }
 }

@@ -39,4 +39,9 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
+userSchema.pre('save', function(next) {
+    console.log('Saving user:', this);
+    next();
+});
+
 export default mongoose.model('User', userSchema); 

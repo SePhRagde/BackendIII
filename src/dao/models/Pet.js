@@ -23,6 +23,11 @@ const schema = new mongoose.Schema({
     image:String
 })
 
+schema.pre('save', function(next) {
+    console.log('Saving pet:', this);
+    next();
+});
+
 const petModel = mongoose.model(collection,schema);
 
 export default petModel;

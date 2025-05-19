@@ -30,8 +30,9 @@ export const testAdmin = {
 export const setupTestDB = () => {
     before(async () => {
         try {
+            console.log('Connecting to test database...');
             await mongoose.connect(TEST_DB_URI);
-            console.log('Connected to test database');
+            console.log('Connected to test database successfully');
         } catch (error) {
             console.error('Error connecting to test database:', error);
             throw error;
@@ -62,11 +63,15 @@ export const setupTestDB = () => {
 
 // Create test user
 export const createTestUser = async (userData = testUser) => {
+    console.log('Creating test user with data:', userData);
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    return await User.create({
+    console.log('Hashed password:', hashedPassword);
+    const user = await User.create({
         ...userData,
         password: hashedPassword
     });
+    console.log('User created:', user);
+    return user;
 };
 
 // Generate JWT token
@@ -125,4 +130,19 @@ export const setupTestUploadDirs = () => {
     });
 
     return testUploadDir;
+};
+
+// Create test pet
+export const createTestPet = async (petData) => {
+    console.log('Starting createTestPet with data:', petData);
+    try {
+        const Pet = (await import('../../src/dao/models/Pet.js')).default;
+        console.log('Pet model imported successfully');
+        const pet = await Pet.create(petData);
+        console.log('Pet created successfully:', pet);
+        return pet;
+    } catch (error) {
+        console.error('Error in createTestPet:', error);
+        throw error;
+    }
 }; 
