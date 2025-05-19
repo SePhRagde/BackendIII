@@ -81,6 +81,9 @@ describe('Adoption Router Tests', function () {
         });
 
         it('should not allow adoption of already adopted pet', async () => {
+            // Set the pet as adopted before the test
+            await Pet.findByIdAndUpdate(petId, { adopted: true });
+
             const res = await request(app)
                 .post(`/api/adoptions/${userId}/${petId}`)
                 .set('Authorization', `Bearer ${userToken}`);

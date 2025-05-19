@@ -3,26 +3,30 @@ import { join } from 'path';
 import { mkdirSync } from 'fs';
 import { CustomError, ErrorCodes } from '../utils/errorHandler.js';
 
-// Create upload directories if they don't exist
 const createUploadDirs = () => {
-    const dirs = ['documents', 'pets'];
+    const dirs = [
+        join(process.cwd(), 'uploads'),
+        join(process.cwd(), 'uploads', 'documents'),
+        join(process.cwd(), 'uploads', 'pets')
+    ];
+
     dirs.forEach(dir => {
         try {
-            mkdirSync(join(process.cwd(), 'uploads', dir), { recursive: true });
+            mkdirSync(dir, { recursive: true });
         } catch (error) {
             if (error.code !== 'EEXIST') {
-                console.error(`Error creating ${dir} directory:`, error);
+                throw new CustomError(
+                    ErrorCodes.FILE_UPLOAD_ERROR,
+                    `Error creating upload directory: ${error.message}`
+                );
             }
         }
     });
 };
 
-createUploadDirs();
-
-// Configure storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const type = req.baseUrl.includes('users') ? 'documents' : 'pets';
+        const type = req.path.includes('documents') ? 'documents' : 'pets';
         cb(null, join(process.cwd(), 'uploads', type));
     },
     filename: (req, file, cb) => {
@@ -31,46 +35,46 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
+    
+    if (!allowedTypes.includes(file.mimetype)) {
         cb(new CustomError(
-            'INVALID_FILE_TYPE',
-            'Invalid file type. Only JPEG, PNG, GIF and PDF files are allowed.',
-            400
+            ErrorCodes.INVALID_FILE_TYPE,
+            'Invalid file type. Only JPEG, PNG, GIF, and PDF files are allowed.'
         ), false);
+        return;
     }
+    
+    cb(null, true);
 };
 
-// Error handler middleware
-const handleMulterError = (err, req, res, next) => {
-    if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-            return next(new CustomError(
-                'FILE_SIZE_LIMIT_EXCEEDED',
-                'File too large',
-                400
-            ));
+const errorHandler = (error, req, res, next) => {
+    if (error instanceof multer.MulterError) {
+        if (error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({
+                status: 'error',
+                code: ErrorCodes.FILE_SIZE_LIMIT_EXCEEDED,
+                message: 'File size limit exceeded'
+            });
         }
-        return next(new CustomError(
-            ErrorCodes.VALIDATION_ERROR,
-            err.message,
-            400
-        ));
+        return res.status(400).json({
+            status: 'error',
+            code: ErrorCodes.FILE_UPLOAD_ERROR,
+            message: error.message
+        });
     }
-    return next(err);
+    next(error);
 };
 
-// Configure multer
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
+        fileSize: 5 * 1024 * 1024
     }
 });
 
-export { upload, handleMulterError }; 
+createUploadDirs();
+
+export { upload, errorHandler }; 

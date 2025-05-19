@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import adoptionsController from '../controllers/adoptions.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { authorization } from '../middlewares/authorization.middleware.js';
+import adoptionsController from '../controllers/adoptions.controller.js';
 
 const router = Router();
 
@@ -11,6 +12,6 @@ router.get('/:aid', authMiddleware, adoptionsController.getAdoption);
 // Create an adoption
 router.post('/:uid/:pid', authMiddleware, adoptionsController.createAdoption);
 // Update adoption status (admin only)
-router.put('/:aid', authMiddleware, adoptionsController.updateAdoptionStatus);
+router.put('/:aid', authMiddleware, authorization(['admin']), adoptionsController.updateAdoptionStatus);
 
 export default router;

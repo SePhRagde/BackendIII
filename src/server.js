@@ -17,7 +17,7 @@ mongoose.connect(MONGODB_URI)
         });
     })
     .catch((error) => {
-        logger.error('MongoDB connection error:', error);
+        logger.error('Error connecting to MongoDB:', error);
         process.exit(1);
     });
 

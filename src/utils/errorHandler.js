@@ -1,36 +1,23 @@
 import logger from './logger.js';
 
 export const ErrorCodes = {
-    // General errors
     INTERNAL_ERROR: 'INTERNAL_ERROR',
     VALIDATION_ERROR: 'VALIDATION_ERROR',
     NOT_FOUND: 'NOT_FOUND',
-    
-    // Authentication errors
     UNAUTHORIZED: 'UNAUTHORIZED',
     INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
     INVALID_TOKEN: 'INVALID_TOKEN',
     TOKEN_EXPIRED: 'TOKEN_EXPIRED',
-    
-    // User errors
     USER_ALREADY_EXISTS: 'USER_ALREADY_EXISTS',
     USER_NOT_FOUND: 'USER_NOT_FOUND',
     INVALID_USER_ROLE: 'INVALID_USER_ROLE',
-    
-    // Pet errors
     PET_NOT_FOUND: 'PET_NOT_FOUND',
     INVALID_PET_STATUS: 'INVALID_PET_STATUS',
-    
-    // Document errors
     FILE_UPLOAD_ERROR: 'FILE_UPLOAD_ERROR',
     INVALID_FILE_TYPE: 'INVALID_FILE_TYPE',
     FILE_SIZE_LIMIT_EXCEEDED: 'FILE_SIZE_LIMIT_EXCEEDED',
-    
-    // Adoption related errors
     ADOPTION_NOT_FOUND: 'ADOPTION_NOT_FOUND',
     ADOPTION_ALREADY_EXISTS: 'ADOPTION_ALREADY_EXISTS',
-    
-    // General errors
     DATABASE_ERROR: 'DATABASE_ERROR',
     INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR'
 };
@@ -55,7 +42,6 @@ export const errorHandler = (err, req, res, next) => {
         });
     }
 
-    // Handle JWT errors
     if (err.name === 'JsonWebTokenError') {
         return res.status(401).json({
             status: 'error',
@@ -72,7 +58,6 @@ export const errorHandler = (err, req, res, next) => {
         });
     }
 
-    // Handle validation errors
     if (err.name === 'ValidationError') {
         return res.status(400).json({
             status: 'error',
@@ -81,7 +66,6 @@ export const errorHandler = (err, req, res, next) => {
         });
     }
 
-    // Handle mongoose duplicate key error
     if (err.code === 11000) {
         return res.status(400).json({
             status: 'error',
@@ -90,7 +74,6 @@ export const errorHandler = (err, req, res, next) => {
         });
     }
 
-    // Default error
     return res.status(500).json({
         status: 'error',
         code: ErrorCodes.INTERNAL_ERROR,

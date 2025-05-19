@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import usersController from '../controllers/users.controller.js';
-import { upload, handleMulterError } from '../config/multer.config.js';
+import { upload, errorHandler } from '../config/multer.config.js';
 import logger from '../utils/logger.js';
 import { CustomError, ErrorCodes } from '../utils/errorHandler.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
@@ -51,7 +51,7 @@ router.delete('/:uid',usersController.deleteUser);
  *       403:
  *         description: Forbidden
  */
-router.post('/:uid/documents', authMiddleware, upload.array('documents', 5), handleMulterError, async (req, res, next) => {
+router.post('/:uid/documents', authMiddleware, upload.array('documents', 5), errorHandler, async (req, res, next) => {
     try {
         const { uid } = req.params;
         const files = req.files;
