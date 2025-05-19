@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb+srv://sephragde:PE0UxxhjVGZZJ5Ie@finalbackendi.gujqk.mongodb.net/
+      - JWT_SECRET=your-secret-key
+      - PORT=3000
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules 
